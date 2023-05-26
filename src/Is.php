@@ -95,4 +95,10 @@ class Is {
 		return false;
 	}
 	
+	public static function isBot() {
+		return (
+			isset( $_SERVER['HTTP_USER_AGENT'] )
+			&& preg_match('/bot|crawl|slurp|spider|mediapartners/i', $_SERVER['HTTP_USER_AGENT'])
+		);
+	}
 }

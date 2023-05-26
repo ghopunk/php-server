@@ -10,7 +10,7 @@ class Headers {
 	const MONTH_IN_SECONDS 	= 30 * 24 * 60 * 60;
 	const YEAR_IN_SECONDS 	= 365 * 24 * 60 * 60;
 
-	function getCodeDescription( $code ) {
+	public static function getCodeDescription( $code ) {
 		$code = abs( intval( $code ) );
 		$abs_header_to_desc = array(
 			100 => 'Continue',
@@ -79,8 +79,8 @@ class Headers {
 		else
 			return '';
 	}
-	function setCode( $code ) {
-		$description = $this->getCodeDescription( $code );
+	public static function setCode( $code ) {
+		$description = static::getCodeDescription( $code );
 		if ( empty( $description ) ){
 			return;
 		}
@@ -96,7 +96,7 @@ class Headers {
 		header( $setCode, true, $code );
 	}
 	
-	function setCleanContentType( $extention='html' ){
+	public static function setCleanContentType( $extention='html' ){
 		header('Connection: close');
 		if ( function_exists( 'header_remove' ) ) {
 			header_remove('Cache-Control');
@@ -113,10 +113,10 @@ class Headers {
 				}
 			}
 		}
-		$this->setContentType( $extention );
+		static::setContentType( $extention );
 	}
 	
-	private function getNocache() {
+	private static function getNocache() {
 		$headers = array(
 			'Expires' => 'Wed, 11 Jan 1984 05:00:00 GMT',
 			'Cache-Control' => 'no-cache, must-revalidate, max-age=0',
@@ -125,7 +125,7 @@ class Headers {
 		$headers['Last-Modified'] = false;
 		return $headers;
 	}
-	function setNocache() {
+	public static function setNocache() {
 		$headers = getNocache();
 		unset( $headers['Last-Modified'] );
 		if ( function_exists( 'header_remove' ) ) {
@@ -141,15 +141,15 @@ class Headers {
 		foreach( $headers as $name => $field_value )
 			header("{$name}: {$field_value}");
 	}
-	function setRetryAfter( $expires='1' ) {
+	public static function setRetryAfter( $expires='1' ) {
 		$expiresOffset = $expires * Headers::DAY_IN_SECONDS;
 		header('Retry-After: '.gmdate( 'D, d M Y H:i:s', time() + $expiresOffset ) . ' GMT');
 	}
-	function setContentLanguage($lang) {
+	public static function setContentLanguage($lang) {
 		header('Content-Language: '.$lang);
 	}
 	
-	function getMimeList() {
+	public static function getMimeList() {
 		return [
 			'atom'		=> 'application/atom+xml',
 			'ecma'		=> 'application/ecmascript',
@@ -291,31 +291,42 @@ class Headers {
 		];
 	}
 	
-	function setContentType( $extention='html' ) {
-		if( isset($this->getMimeList()[$extention]) ) {
-			header('Content-Type: ' . $this->getMimeList()[$extention] . '; charset=UTF-8');
+	public static function setContentType( $extention='html' ) {
+		if( isset(static::getMimeList()[$extention]) ) {
+			header('Content-Type: ' . static::getMimeList()[$extention] . '; charset=UTF-8');
 		}
 	}
 	
-	function setNoindex() {
-		header('X-Robots-Tag: noindex');
+	public static function setNoindex() {
+		static::setRobot('noindex');
 	}
-	function setExpires( $expires=7 ) {
+	public static function setExpires( $expires=7 ) {
 		$expiresOffset = $expires * Headers::DAY_IN_SECONDS;
 		header( "Vary: Accept-Encoding" ); // Handle proxies
 		header( "Expires: " . gmdate( "D, d M Y H:i:s", time() + $expiresOffset ) . " GMT" );
 	}
-	function setXFrameOptions( $opt='SAMEORIGIN' ) {
+	public static function setXFrameOptions( $opt='SAMEORIGIN' ) {
 		header('X-Frame-Options: '.$opt);
 	}
-	function setXContentTypeOptions( $opt='nosniff' ) {
+	public static function setXContentTypeOptions( $opt='nosniff' ) {
 		header('X-Content-Type-Options: '.$opt);
 	}
-	function setAccessControlAllowCredentials() {
+	public static function setAccessControlAllowCredentials() {
 		header('Access-Control-Allow-Credentials: true');
 	}
+	public static function setCanonical( $url ) {
+		header('Link: <' . $url . '>; rel="canonical"');
+	}
 	
-	function parseHeaders( $headers ){
+	public static function setLocation( $url, $code=301 ) {
+		header( "Location: $url", true, $code );
+	}
+	
+	public static function setRobot( $arr = 'noindex' ) {
+		header('X-Robots-Tag: ' . $arr);
+	}
+	
+	public static function parseHeaders( $headers ){
 		$head = array();
 		if( !empty($headers) && is_array($headers) ) {
 			foreach( $headers as $k=>$v ){
