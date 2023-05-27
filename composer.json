@@ -19,7 +19,7 @@
     },
     "autoload": {
         "psr-4": {
-            "ghopunk\\Helpers\\Server\\": "src",
+            "ghopunk\\Helpers\\Server\\": "src"
         }
     },
     "prefer-stable": true
