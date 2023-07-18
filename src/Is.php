@@ -1,4 +1,5 @@
 <?php
+
 namespace ghopunk\Helpers\Server;
 
 class Is {

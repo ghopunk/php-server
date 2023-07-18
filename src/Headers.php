@@ -1,5 +1,8 @@
 <?php
+
 namespace ghopunk\Helpers\Server;
+
+use ghopunk\Helpers\Server\Is;
 
 class Headers {
 	
@@ -318,6 +321,64 @@ class Headers {
 		header('Link: <' . $url . '>; rel="canonical"');
 	}
 	
+	public static function setCookie( $name, $value, $path='/', $expires=false ){
+		$domain = $_SERVER['HTTP_HOST'];
+		if( $expires === false ){
+			$expires = time() + (3600 * 24 * 1);
+		}
+		if( PHP_VERSION_ID < 70300 ){
+			$expiryTime = gmdate('D, d-M-Y H:i:s T', $expires);
+			if( Is::httpsSite() ){
+				$samesite = 'SameSite=None; Secure';
+			} else {
+				$samesite = 'SameSite=Lax;';
+			}
+			header( 'Set-Cookie: '.$name.'='.urlencode($value).'; path='.$path.'; domain='.$domain.'; expires='.$expiryTime.'; '.$samesite, false );
+		} else {
+			if( Is::httpsSite() ){
+				$samesite = 'None';
+			} else {
+				$samesite = 'Lax';
+			}
+			$cookie_options = [
+								'expires' 	=> $expires,
+								'path' 		=> $path,
+								'domain' 	=> $domain,
+								'secure' 	=> Is::httpsSite(),
+								'samesite' 	=> $samesite
+							];
+			return setcookie( $name, $value, $cookie_options );
+		}
+	}
+	
+	public static function removeCookie( $name, $value='', $path='/' ){
+		$expires 	= time()-3600;
+		$domain 	= $_SERVER['HTTP_HOST'];
+		if(PHP_VERSION_ID < 70300){
+			$expiryTime = gmdate('D, d-M-Y H:i:s T', $expires);
+			if( Is::httpsSite() ){
+				$samesite = 'SameSite=None; Secure';
+			} else {
+				$samesite = 'SameSite=Lax;';
+			}
+			header( 'Set-Cookie: '.$name.'=deleted; path='.$path.'; domain='.$domain.'; expires='.$expiryTime.'; '.$samesite );
+		} else {
+			if( Is::httpsSite() ){
+				$samesite = 'None';
+			} else {
+				$samesite = 'Lax';
+			}
+			$cookie_options = [
+								'expires' 	=> $expires,
+								'path' 		=> $path,
+								'domain' 	=> $domain,
+								'secure' 	=> Is::httpsSite(),
+								'samesite' 	=> $samesite
+							];
+			setcookie( $name, $value, $cookie_options );
+		}
+	}
+
 	public static function setLocation( $url, $code=301 ) {
 		header( "Location: $url", true, $code );
 	}
