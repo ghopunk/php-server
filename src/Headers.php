@@ -83,7 +83,7 @@ class Headers {
 			return '';
 	}
 	public static function setCode( $code ) {
-		$description = static::getCodeDescription( $code );
+		$description = self::getCodeDescription( $code );
 		if ( empty( $description ) ){
 			return;
 		}
@@ -116,7 +116,7 @@ class Headers {
 				}
 			}
 		}
-		static::setContentType( $extention );
+		self::setContentType( $extention );
 	}
 	
 	private static function getNocache() {
@@ -295,13 +295,13 @@ class Headers {
 	}
 	
 	public static function setContentType( $extention='html' ) {
-		if( isset(static::getMimeList()[$extention]) ) {
-			header('Content-Type: ' . static::getMimeList()[$extention] . '; charset=UTF-8');
+		if( isset(self::getMimeList()[$extention]) ) {
+			header('Content-Type: ' . self::getMimeList()[$extention] . '; charset=UTF-8');
 		}
 	}
 	
 	public static function setNoindex() {
-		static::setRobot('noindex');
+		self::setRobot('noindex');
 	}
 	public static function setExpires( $expires=7 ) {
 		$expiresOffset = $expires * Headers::DAY_IN_SECONDS;
